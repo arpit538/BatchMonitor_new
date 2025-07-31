@@ -18,10 +18,40 @@ namespace BatchMonitor.Views
             BatchTypeComboBox.SelectedItem is System.Windows.Controls.ComboBoxItem selectedItem && 
             selectedItem.Tag?.ToString() == "Hourly" ? BatchType.Hourly : BatchType.FixedTime;
 
+        public bool IsEditMode { get; set; } = false;
+
         public AddBatchDialog()
         {
             InitializeComponent();
             BatchTypeComboBox.SelectedIndex = 0; // Default to FixedTime
+        }
+
+        public void SetBatchFields(BatchItem batch)
+        {
+            BatchNameTextBox.Text = batch.Name;
+            LogFilePathTextBox.Text = batch.LogFilePath;
+            ErrorLogFilePathTextBox.Text = batch.ErrorLogFilePath;
+            CustomLogFilePathTextBox.Text = batch.CustomLogFilePath;
+            ConfigFilePathTextBox.Text = batch.ConfigFilePath;
+            ExecutablePathTextBox.Text = batch.ExecutablePath;
+            // Set batch type
+            foreach (var item in BatchTypeComboBox.Items)
+            {
+                if (item is System.Windows.Controls.ComboBoxItem comboItem &&
+                    comboItem.Tag?.ToString() == batch.BatchType.ToString())
+                {
+                    BatchTypeComboBox.SelectedItem = comboItem;
+                    break;
+                }
+            }
+        }
+
+        public AddBatchDialog(BatchItem batchToEdit) : this()
+        {
+            IsEditMode = true;
+            SetBatchFields(batchToEdit);
+            this.Title = "Edit Batch";
+            OkOrUpdateButton.Content = "Update";
         }
 
         private void BrowseLogFile_Click(object sender, RoutedEventArgs e)

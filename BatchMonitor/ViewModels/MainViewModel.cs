@@ -45,6 +45,7 @@ namespace BatchMonitor.ViewModels
             ViewConfigCommand = new RelayCommand(() => ViewConfig(SelectedBatch));
             ToggleAutoRefreshCommand = new RelayCommand(ToggleAutoRefresh);
             SetFilterDateCommand = new RelayCommand(SetFilterDate);
+            EditBatchCommand = new RelayCommand(() => EditBatch(SelectedBatch), () => SelectedBatch != null);
 
             // Initialize with today's date as filter
             FilterDate = DateTime.Today;
@@ -71,6 +72,7 @@ namespace BatchMonitor.ViewModels
                 ((RelayCommand)RemoveBatchCommand).RaiseCanExecuteChanged();
                 ((RelayCommand)ScheduleBatchCommand).RaiseCanExecuteChanged();
                 ((RelayCommand)ViewLogsCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)EditBatchCommand).RaiseCanExecuteChanged(); // Ensure EditBatchCommand updates
             }
         }
 
@@ -148,6 +150,7 @@ namespace BatchMonitor.ViewModels
         public ICommand ViewConfigCommand { get; }
         public ICommand ToggleAutoRefreshCommand { get; }
         public ICommand SetFilterDateCommand { get; }
+        public ICommand EditBatchCommand { get; }
 
         // Expose BatchService for external access
         public BatchService BatchService => _batchService;
@@ -399,6 +402,33 @@ namespace BatchMonitor.ViewModels
             {
                 FilterDate = dialog.SelectedDateTime;
                 // FilterDate property setter will handle refreshing
+            }
+        }
+
+        private void EditBatch(BatchItem? batch)
+        {
+            if (batch == null) return;
+            var dialog = new Views.AddBatchDialog(batch);
+            if (dialog.ShowDialog() == true)
+            {
+                // Update the batch with new values
+                batch.Name = dialog.BatchName;
+                batch.LogFilePath = dialog.LogFilePath;
+                batch.ErrorLogFilePath = dialog.ErrorLogFilePath;
+                batch.CustomLogFilePath = dialog.CustomLogFilePath;
+                batch.ConfigFilePath = dialog.ConfigFilePath;
+                batch.ExecutablePath = dialog.ExecutablePath;
+                batch.BatchType = dialog.BatchType;
+                // Optionally update status
+                _batchService.UpdateBatchStatusAsync(batch);
+                SaveBatches();
+                StatusMessage = $"Updated batch: {batch.Name}";
+                // Notify UI
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    var view = System.Windows.Data.CollectionViewSource.GetDefaultView(Batches);
+                    view.Refresh();
+                });
             }
         }
 

@@ -159,7 +159,7 @@
                         Margin="0,0,8,0" Padding="12,6">
                     Cancel
                 </Button>
-                <Button Style="{DynamicResource MaterialDesignRaisedButton}" 
+                <Button x:Name="OkOrUpdateButton" Style="{DynamicResource MaterialDesignRaisedButton}" 
                         Click="OK_Click" IsDefault="True" Padding="12,6">
                     Add Batch
                 </Button>
