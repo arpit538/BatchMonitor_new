@@ -1,4 +1,5 @@
 ﻿using BatchMonitor.Models;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,12 +13,44 @@ namespace BatchMonitor.Services
 {
     public class BatchService
     {
-        // SMTP configuration (simple, hardcoded for demo)
-        private readonly string _smtpHost = "smtp.gmail.com";
-        private readonly int _smtpPort = 587;
-        private readonly string _smtpUser = "arpitagrawal1207@gmail.com"; // sender (must allow less secure apps or use app password)
-        private readonly string _smtpPass = "njvm exlb gypo fyyp"; // TODO: Replace with your app password
-        private readonly string _mailTo = "arpit.agrawal2021@glbajajgroup.org";
+        private readonly string _smtpHost;
+        private readonly int _smtpPort;
+        private readonly string _smtpUser;
+        private readonly string _smtpPass;
+        private readonly string _mailTo;
+        private readonly string _telegramBotToken;
+        private readonly string _telegramChatId;
+        private readonly string _whatsAppWorkingDirectory;
+        private readonly CustomLogAnalyzer _customLogAnalyzer;
+        private readonly PowerShellSchedulerService _taskScheduler;
+        private readonly string _configPath;
+
+        public BatchService()
+        {
+            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var appFolder = Path.Combine(appDataPath, "BatchMonitor");
+            if (!Directory.Exists(appFolder))
+                Directory.CreateDirectory(appFolder);
+            _configPath = Path.Combine(appFolder, "batches.json");
+            _customLogAnalyzer = new CustomLogAnalyzer();
+            _taskScheduler = new PowerShellSchedulerService();
+            MigrateExistingData();
+
+            // Load configuration from appsettings.json
+            var configBuilder = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            var config = configBuilder.Build();
+
+            _smtpHost = config["Smtp:Host"] ?? "smtp.gmail.com";
+            _smtpPort = int.TryParse(config["Smtp:Port"], out var port) ? port : 587;
+            _smtpUser = config["Smtp:User"] ?? string.Empty;
+            _smtpPass = config["Smtp:Password"] ?? string.Empty;
+            _mailTo = config["Smtp:MailTo"] ?? string.Empty;
+            _telegramBotToken = config["Telegram:BotToken"] ?? string.Empty;
+            _telegramChatId = config["Telegram:ChatId"] ?? string.Empty;
+            _whatsAppWorkingDirectory = config["WhatsApp:WorkingDirectory"] ?? string.Empty;
+        }
 
         // Call this after analyzing all batches to send a summary email
         public async Task SendBatchReportEmailAsync(List<BatchItem> batches, DateTime filterDate)
@@ -49,8 +82,8 @@ namespace BatchMonitor.Services
                 // Then send to Telegram
                 try
                 {
-                    string botToken = "8492894039:AAGHMFW9Upj349sTr9AW4n68at3ODmXYW88";
-                    string chatId = "2038406616";
+                    string botToken = _telegramBotToken;
+                    string chatId = _telegramChatId;
 
                     // Get failed batches
                     var failedBatches = batches.Where(b => b.Status.ToString().ToUpper() == "ERROR" || b.Status.ToString().ToUpper() == "FAILED").ToList();
@@ -101,7 +134,7 @@ namespace BatchMonitor.Services
                         //now for whatsapp
                         var processInfo = new ProcessStartInfo("node", $"index.js \"{messageBuilder.ToString()}\"")
                         {
-                            WorkingDirectory = @"D:\Users\USER1\Desktop\whats_Batchmonitor",
+                            WorkingDirectory = _whatsAppWorkingDirectory,
                             RedirectStandardOutput = true,
                             UseShellExecute = false,
                             CreateNoWindow = true
@@ -384,22 +417,6 @@ namespace BatchMonitor.Services
             return html;
         }
 
-        private readonly CustomLogAnalyzer _customLogAnalyzer;
-        private readonly PowerShellSchedulerService _taskScheduler;
-        private readonly string _configPath;
-
-        public BatchService()
-        {
-            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var appFolder = Path.Combine(appDataPath, "BatchMonitor");
-            if (!Directory.Exists(appFolder))
-                Directory.CreateDirectory(appFolder);
-            _configPath = Path.Combine(appFolder, "batches.json");
-            _customLogAnalyzer = new CustomLogAnalyzer();
-            _taskScheduler = new PowerShellSchedulerService();
-            MigrateExistingData();
-        }
-
         public class BatchAnalysisResult
         {
             public BatchStatus Status { get; set; }
@@ -504,8 +521,6 @@ namespace BatchMonitor.Services
                 throw new Exception($"Failed to save batches: {ex.Message}");
             }
         }
-
-        // ...
 
         private void ApplyAnalysisResultToBatch(BatchItem batch, BatchAnalysisResult analysisResult)
         {
