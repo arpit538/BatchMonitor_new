@@ -1,5 +1,4 @@
-﻿
-using BatchMonitor.Models;
+﻿using BatchMonitor.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

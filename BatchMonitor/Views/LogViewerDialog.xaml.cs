@@ -112,8 +112,9 @@ namespace BatchMonitor.Views
                 
                 // Load config file
                 var configContent = _batchService.ReadConfigFile(_batch.ConfigFilePath);
-                ConfigTextBox.Text = configContent;
-                
+                ConfigTextEditor.Text = configContent; // Use AvalonEdit control
+                // Optionally set syntax highlighting (should be set in XAML, but can be set here too)
+                // ConfigTextEditor.SyntaxHighlighting = ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance.GetDefinition("XML");
                 StatusTextBlock.Text = "Config file loaded successfully";
             }
             catch (Exception ex)
@@ -126,11 +127,13 @@ namespace BatchMonitor.Views
         {
             InitializeComponent();
             _batch = null!;
-            _batchService = null!;            
+            _batchService = null!;
             // Check if it's a config file or log file based on title
             if (title.Contains("Config"))
             {
-                ConfigTextBox.Text = content;
+                ConfigTextEditor.Text = content; // Use AvalonEdit control
+                // Optionally set syntax highlighting (should be set in XAML, but can be set here too)
+                // ConfigTextEditor.SyntaxHighlighting = ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance.GetDefinition("XML");
             }
             else
             {
