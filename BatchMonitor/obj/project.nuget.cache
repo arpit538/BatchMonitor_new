@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "/knTgHRM13g=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\salon\\source\\repos\\BatchMonitor_newest\\BatchMonitor\\BatchMonitor.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\salon\\.nuget\\packages\\avalonedit\\6.3.1.120\\avalonedit.6.3.1.120.nupkg.sha512",
+    "C:\\Users\\salon\\.nuget\\packages\\materialdesigncolors\\2.1.4\\materialdesigncolors.2.1.4.nupkg.sha512",
+    "C:\\Users\\salon\\.nuget\\packages\\materialdesignthemes\\4.9.0\\materialdesignthemes.4.9.0.nupkg.sha512",
+    "C:\\Users\\salon\\.nuget\\packages\\microsoft.xaml.behaviors.wpf\\1.1.39\\microsoft.xaml.behaviors.wpf.1.1.39.nupkg.sha512",
+    "C:\\Users\\salon\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
