@@ -416,7 +416,7 @@
                         </DataGridTemplateColumn>
 
                         <!-- Actions -->
-                        <DataGridTemplateColumn Header="Actions" Width="180" MinWidth="140">
+                        <DataGridTemplateColumn Header="Actions" Width="250" MinWidth="180">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -432,7 +432,18 @@
                                                 <TextBlock Text="Schedule" FontSize="10"/>
                                             </StackPanel>
                                         </Button>
-                                        
+                                        <Button Style="{StaticResource CompactActionButton}" 
+                                                Command="{Binding DataContext.EditBatchCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Background="{DynamicResource PrimaryHueMidBrush}"
+                                                Foreground="White"
+                                                ToolTip="Edit Batch"
+                                                Margin="2,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <materialDesign:PackIcon Kind="Pencil" Width="12" Height="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                <TextBlock Text="Edit" FontSize="10"/>
+                                            </StackPanel>
+                                        </Button>
                                         <Button Style="{StaticResource CompactActionButton1}" 
    FocusVisualStyle="{StaticResource RedFocusVisualStyle}"
                                                 Command="{Binding DataContext.RemoveBatchCommand, RelativeSource={RelativeSource AncestorType=Window}}"
